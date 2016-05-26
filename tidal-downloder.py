@@ -1,11 +1,37 @@
+#!/usr/bin/env python
+
 import tidalapi
 import argparse
 import urllib2
-
+from mutagen.flac import FLAC
 
 config = tidalapi.Config(quality=tidalapi.Quality.lossless)
 session = tidalapi.Session(config=config)
-session.login("rawsludge@hotmail.com", "xxxxxxxxx")
+session.login("rawsludge@hotmail.com", "ozturk.99")
+
+def downloadFile(url, path, fileName):
+	u = urllib2.urlopen(url)
+	meta = u.info()
+	fileSize = int(meta.getheaders("Content-Length")[0])
+	print "Downloading: %s Bytes: %s" % (fileName.encode("utf8"), fileSize)
+	if not os.path.exists(path):
+    		os.makedirs(path)
+	fileName = path + fileName
+	if os.path.isfile(file):
+		return 
+	f = open(fileName.encode("utf8"), 'wb')
+	fileDownloaded = 0
+	blockSize = 8192
+	while True:
+		buffer = u.read(blockSize)
+		if not buffer:
+			break
+		fileDownloaded += len(buffer)
+		f.write(buffer)
+		status = r"%10d [%3.2f%%]" % (fileDownloaded, fileDownloaded * 100. / fileSize)
+		status = status + chr(8) * (len(status)+1)
+		print status,
+	f.close()
 
 
 parser = argparse.ArgumentParser()
@@ -22,25 +48,22 @@ if args.download:
 	album = session.get_album(args.album)
 	artist = session.get_artist(album.artist.id)	
 	tracks = session.get_album_tracks(album_id=args.album)
+	albumPath = "./" + artist.name + "-" + album.name + "/"
+	downloadFile( album.image, albumPath, "Folder.jpg")
 	for track in tracks:
 		url = session.get_media_url(track.id)
 		fileName = artist.name + ' - ' + track.name + '.flac'
+		#print album.image
+		downloadFile(url, albumPath, fileName)
+		audiofile = FLAC(fileName.encode("utf8"))
+		audiofile["artist"] = track.artist.name
+		audiofile["album"] = album.name
+		audiofile["albumartist"] = artist.name
+		audiofile["title"] = track.name
+		audiofile["tracknumber"] = str(track.track_num)
+		#print audiofile.pprint().encode("utf8")
+		audiofile.save()
     		#print fileName.encode("utf8")
-		u = urllib2.urlopen(url)
-		meta = u.info()
-		fileSize = int(meta.getheaders("Content-Length")[0])
-		print "Downloading: %s Bytes: %s" % (fileName.encode("utf8"), fileSize)
-		f = open(fileName.encode("utf8"), 'wb')
-		fileDownloaded = 0
-		blockSize = 8192
-		while True:
-			buffer = u.read(blockSize)
-			if not buffer:
-				break
-			fileDownloaded += len(buffer)
-			f.write(buffer)
-			status = r"%10d [%3.2f%%]" % (fileDownloaded, fileDownloaded * 100. / fileSize)
-			status = status + chr(8) * (len(status)+1)
-			print status,
-		f.close()
 		#print track.name.encode("utf8")
+
+
