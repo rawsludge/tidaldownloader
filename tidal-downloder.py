@@ -1,8 +1,10 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import tidalapi
 import argparse
 import urllib2
+import os
 from mutagen.flac import FLAC
 
 config = tidalapi.Config(quality=tidalapi.Quality.lossless)
@@ -12,12 +14,17 @@ session.login("rawsludge@hotmail.com", "ozturk.99")
 def downloadFile(url, path, fileName):
 	u = urllib2.urlopen(url)
 	meta = u.info()
-	fileSize = int(meta.getheaders("Content-Length")[0])
+	contentLength = meta.getheaders("Content-Length")
+	print len(contentLength)
+	if len(contentLength):
+		fileSize = int(contentLength[0])
+	else:	
+		fileSize = 1
 	print "Downloading: %s Bytes: %s" % (fileName.encode("utf8"), fileSize)
-	if not os.path.exists(path):
-    		os.makedirs(path)
+	if not os.path.exists(path.encode("utf8")):
+    		os.makedirs(path.encode("utf8"))
 	fileName = path + fileName
-	if os.path.isfile(file):
+	if os.path.isfile(fileName.encode("utf8")):
 		return 
 	f = open(fileName.encode("utf8"), 'wb')
 	fileDownloaded = 0
@@ -48,7 +55,7 @@ if args.download:
 	album = session.get_album(args.album)
 	artist = session.get_artist(album.artist.id)	
 	tracks = session.get_album_tracks(album_id=args.album)
-	albumPath = "./" + artist.name + "-" + album.name + "/"
+	albumPath = "./" + artist.name + " - " + album.name + "/"
 	downloadFile( album.image, albumPath, "Folder.jpg")
 	for track in tracks:
 		url = session.get_media_url(track.id)
@@ -65,5 +72,3 @@ if args.download:
 		audiofile.save()
     		#print fileName.encode("utf8")
 		#print track.name.encode("utf8")
-
-
