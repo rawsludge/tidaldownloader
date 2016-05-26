@@ -5,7 +5,7 @@ import urllib2
 
 config = tidalapi.Config(quality=tidalapi.Quality.lossless)
 session = tidalapi.Session(config=config)
-session.login("rawsludge@hotmail.com", "ozturk.99")
+session.login("rawsludge@hotmail.com", "xxxxxxxxx")
 
 
 parser = argparse.ArgumentParser()
