@@ -50,7 +50,7 @@ args = parser.parse_args()
 if args.albums:
 	albums = session.user.favorites.albums()
 	for album in albums:
-		print `album.id` + ' --> ' + album.name.encode('utf8')
+		print `album.id` + ' --> ' + album.artist.name.encode("utf8") + " - " + album.name.encode('utf8')
 if args.download:
 	album = session.get_album(args.album)
 	artist = session.get_artist(album.artist.id)	
@@ -62,6 +62,7 @@ if args.download:
 		fileName = artist.name + ' - ' + track.name + '.flac'
 		#print album.image
 		downloadFile(url, albumPath, fileName)
+		fileName = albumPath + fileName
 		audiofile = FLAC(fileName.encode("utf8"))
 		audiofile["artist"] = track.artist.name
 		audiofile["album"] = album.name
